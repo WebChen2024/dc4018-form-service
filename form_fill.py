@@ -273,7 +273,10 @@ def fill(template, out_path, *, applicant_name, emp_id, dept, phone, email,
     warnings = []
     n = estimate_lines(need_lines, NEED_CHARS_PER_LINE)
     if estimate_lines([headcount], HEADCOUNT_CHARS_PER_LINE) > 1:
-        warnings.append(f'預估使用人數「{headcount}」超過一行（約 {HEADCOUNT_CHARS_PER_LINE} 個全形字），該格列高固定，第二行會被截掉；請縮短。')
+        warnings.append({
+            'code': 'headcount_overflow',
+            'message': f'預估使用人數「{headcount}」超過一行（約 {HEADCOUNT_CHARS_PER_LINE} 個全形字），該格列高固定，第二行會被截掉；請縮短。',
+        })
 
     with zipfile.ZipFile(template) as zin:
         items = zin.infolist()
@@ -306,9 +309,15 @@ def fill(template, out_path, *, applicant_name, emp_id, dept, phone, email,
     pages = count_pages(out_path)
     if pages is None:  # no renderer: fall back to the line estimate
         if n > NEED_MAX_LINES:
-            warnings.append(f'需求說明約 {n} 行，超過安全範圍（約 {NEED_MAX_LINES} 行），表單可能被撐到第二頁；請精簡或改用附件。')
+            warnings.append({
+                'code': 'need_overflow',
+                'message': f'需求說明約 {n} 行，超過安全範圍（約 {NEED_MAX_LINES} 行），表單可能被撐到第二頁；請精簡或改用附件。',
+            })
     elif pages > 1:
-        warnings.append(f'整份表單轉檔後是 {pages} 頁（需求說明約 {n} 行），超過 1 頁 A4；請精簡需求說明，或改寫成簡短說明並註明「詳如附件」。')
+        warnings.append({
+            'code': 'need_overflow',
+            'message': f'整份表單轉檔後是 {pages} 頁（需求說明約 {n} 行），超過 1 頁 A4；請精簡需求說明，或改寫成簡短說明並註明「詳如附件」。',
+        })
     return warnings, pages
 
 
@@ -400,7 +409,7 @@ def _cli():
     else:
         print(f'    頁數檢查: {pages} 頁' + (' ✓' if pages == 1 else ''))
     for w in warnings:
-        print('WARNING: ' + w)
+        print('WARNING: ' + w['message'])
 
 
 if __name__ == '__main__':

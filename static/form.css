@@ -1,0 +1,12 @@
+body { font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; max-width: 640px; margin: 2em auto; padding: 0 1em; }
+fieldset { margin-bottom: 1.5em; }
+label { display: block; margin: 0.6em 0; }
+label.inline { display: inline-block; margin-right: 1em; }
+label.checkbox { font-weight: normal; }
+input[type="text"], input[type="email"], textarea { width: 100%; box-sizing: border-box; padding: 0.4em; }
+textarea { font-family: inherit; }
+.req { color: #c0392b; }
+.hint { color: #666; font-size: 0.85em; display: block; }
+.hint.warn { color: #c0392b; }
+.error { color: #c0392b; font-weight: bold; }
+button[type="submit"] { margin-top: 1em; padding: 0.6em 1.4em; font-size: 1em; }

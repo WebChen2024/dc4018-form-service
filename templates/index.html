@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>系統開發維護需求單（DC-4018）</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='form.css') }}">
+</head>
+<body>
+<h1>系統開發維護需求單（DC-4018 v1.6）</h1>
+<p class="hint">送出後會自動下載產生的 .docx，同時留存一份紀錄供 Web 事後查閱。</p>
+
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
+
+<form method="post" action="{{ url_for('submit') }}" id="form">
+  <fieldset>
+    <legend>申請人資料</legend>
+
+    <label>員工編號 <span class="req">*</span>
+      <input type="text" name="emp_id" id="emp_id" required value="{{ values.get('emp_id', '') }}">
+    </label>
+    <span id="lookup_hint" class="hint"></span>
+
+    <label>申請人姓名 <span class="req">*</span>
+      <input type="text" name="name" id="name" required value="{{ values.get('name', '') }}">
+    </label>
+
+    <label>單位 <span class="req">*</span>
+      <input type="text" name="dept" id="dept" required value="{{ values.get('dept', '') }}">
+    </label>
+
+    <label>電話 <span class="req">*</span>
+      <input type="text" name="phone" id="phone" required value="{{ values.get('phone', '') }}">
+    </label>
+
+    <label>E-Mail <span class="req">*</span>
+      <input type="email" name="email" id="email" required value="{{ values.get('email', '') }}">
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>需求內容</legend>
+
+    <label>需求說明 <span class="req">*</span>
+      <textarea name="need" id="need" rows="8" required>{{ values.get('need', '') }}</textarea>
+    </label>
+    <span id="need_hint" class="hint" data-max-lines="{{ need_max_lines }}">最多約 {{ need_max_lines }} 行仍是 1 頁，太長請改寫成簡短說明並註明「詳如附件」。</span>
+
+    <label>預估使用人數 <span class="req">*</span>
+      <input type="text" name="headcount" id="headcount" required value="{{ values.get('headcount', '') }}">
+    </label>
+    <span class="hint">約 {{ headcount_chars_per_line }} 個全形字以內，超過第二行會被截掉。</span>
+  </fieldset>
+
+  <fieldset>
+    <legend>安全要求（複選）</legend>
+    {% for option in security_options %}
+    <label class="checkbox">
+      <input type="checkbox" name="security" value="{{ option }}"
+        {% if option in selected_security %}checked{% endif %}>
+      {{ option }}
+    </label>
+    {% endfor %}
+  </fieldset>
+
+  <fieldset>
+    <legend>效益評估（複選）</legend>
+    {% for option in benefit_options %}
+    <label class="checkbox">
+      <input type="checkbox" name="benefit" value="{{ option }}"
+        {% if option in selected_benefit %}checked{% endif %}>
+      {{ option }}
+    </label>
+    {% endfor %}
+  </fieldset>
+
+  <fieldset>
+    <legend>申請日期（民國年，可調整）</legend>
+    <label class="inline">年
+      <input type="number" name="roc_year" min="1" max="200" required value="{{ default_date.roc_year }}" style="width:5em">
+    </label>
+    <label class="inline">月
+      <input type="number" name="roc_month" min="1" max="12" required value="{{ default_date.month }}" style="width:4em">
+    </label>
+    <label class="inline">日
+      <input type="number" name="roc_day" min="1" max="31" required value="{{ default_date.day }}" style="width:4em">
+    </label>
+  </fieldset>
+
+  <button type="submit">送出並下載 .docx</button>
+</form>
+
+<script src="{{ url_for('static', filename='form.js') }}"></script>
+</body>
+</html>
