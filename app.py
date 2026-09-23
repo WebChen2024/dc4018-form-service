@@ -6,6 +6,7 @@ M2：完整表單頁面 + POST /submit（更新識別資料 → 產生 docx → 
 import json
 import os
 import re
+import uuid
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
@@ -93,7 +94,9 @@ def submit():
     now = datetime.now(TAIPEI)
     day_dir = os.path.join(ARCHIVE_DIR, now.strftime('%Y-%m-%d'))
     os.makedirs(day_dir, exist_ok=True)
-    serial = now.strftime('%H%M%S_%f')
+    # 時間戳(微秒)+短亂數：低頻使用場景下微秒級時間戳幾乎不會撞號，但真的巧合同時
+    # 送出時光靠時間戳仍有理論上的碰撞風險，加 6 碼亂數尾綴徹底排除。
+    serial = now.strftime('%H%M%S_%f') + '_' + uuid.uuid4().hex[:6]
     base_name = f"{serial}_{_sanitize_filename_part(values['emp_id'])}"
     docx_path = os.path.join(day_dir, base_name + '.docx')
     record_path = os.path.join(day_dir, base_name + '.json')
