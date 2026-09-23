@@ -4,15 +4,21 @@
 各自填寫、送出後自動產生合規 docx 並留存紀錄的 Flask 服務。詳細背景、範疇與里程碑
 規劃見開發計畫（另存，不在本 repo）。
 
-## 目前進度：M1（骨架）
+## 目前進度：M2（表單前端 + 送出流程）完成
 
 - `form_fill.py`：從既有 `shu-system-request-form` skill 的 `fill_form.py` 移植並擴充，
   除了原本的需求說明/預估使用人數/申請日期，新增「申請人姓名/員工編號/單位/電話/Email」
   動態欄位、「安全要求/效益評估」複選 checkbox 讀寫，版面規則（A4 單頁、需求說明列高、
-  日期格式）完全沿用不變。
+  日期格式）完全沿用不變。回傳的 warnings 是 `{code, message}`，code 分
+  `need_overflow`（需求說明撐爆頁面）／`headcount_overflow`（預估使用人數超過一行會被截字）。
 - `db.py`：SQLite 識別資料存取層，以員工編號為 key，整筆覆寫（不留歷史）。
-- `app.py`：Flask 骨架，`GET /` 陽春頁面、`GET /lookup/<員工編號>` 查詢識別資料 JSON。
-- 完整表單前端與 `POST /submit`（送出→產生 docx→歸檔）在 M2。
+- `templates/index.html` + `static/form.{css,js}`：完整表單頁面，員工編號欄位 blur 時
+  查 `/lookup` 自動帶入其餘識別欄位（可再手動覆寫），需求說明有即時行數提示。
+- `app.py`：`GET /` 表單頁、`GET /lookup/<員工編號>`、`POST /submit`。`need_overflow`
+  會擋下送出（回表單、保留已填資料、識別資料仍照常記住方便重送）；`headcount_overflow`
+  不擋，照樣出檔並記在歸檔 json 供 Web 事後複核。送出成功即更新識別資料 → 產生 docx →
+  存一份紀錄到 `archive/<日期>/<序號>.json`＋`.docx` → 回傳 docx 下載。
+- 下一步 M3：超頁轉附件回歸測試矩陣、自動歸檔驗證。
 
 ## 本機測試
 
