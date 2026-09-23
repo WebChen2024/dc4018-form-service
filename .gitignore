@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 識別資料與送單紀錄只留在內網機器本機，不進 git
+data/
+archive/
+
+.env
