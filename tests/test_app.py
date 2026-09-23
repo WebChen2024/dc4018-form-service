@@ -7,13 +7,11 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import app as app_module  # noqa: E402
-import db  # noqa: E402
-import form_fill  # noqa: E402
 
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
-    monkeypatch.setattr(db, 'DEFAULT_DB_PATH', str(tmp_path / 'identities.db'))
+    monkeypatch.setattr(app_module, 'DB_PATH', str(tmp_path / 'identities.db'))
     monkeypatch.setattr(app_module, 'ARCHIVE_DIR', str(tmp_path / 'archive'))
     app_module.app.config['TESTING'] = True
     with app_module.app.test_client() as c:

@@ -4,7 +4,7 @@
 各自填寫、送出後自動產生合規 docx 並留存紀錄的 Flask 服務。詳細背景、範疇與里程碑
 規劃見開發計畫（另存，不在本 repo）。
 
-## 目前進度：M3（回歸測試矩陣）完成
+## 目前進度：M4（內網部署交付）完成 — 開發計畫四個里程碑全部完成
 
 - `form_fill.py`：從既有 `shu-system-request-form` skill 的 `fill_form.py` 移植並擴充，
   除了原本的需求說明/預估使用人數/申請日期，新增「申請人姓名/員工編號/單位/電話/Email」
@@ -33,14 +33,25 @@
   估計的 fallback 路徑（跟原本單人版 skill 在同類沙盒環境下的行為一致，不是這次新增的
   缺口）。**部署到內網機器時，建議確認該機器上 LibreOffice + poppler-utils(`pdfinfo`)
   可以正常運作**，這樣執行期的頁數判斷才會是真的轉檔結果，而不是行數估計。
-- 下一步 M4：內網部署（開機自動啟動、systemd unit 範例）。
+- `wsgi.py`：生產環境啟動入口，用 `waitress`（純 Python、Windows/Linux 通用）取代
+  Flask 內建開發伺服器；`.env.example`：`PORT`/`ARCHIVE_DIR`/`DB_PATH` 三個可覆寫的
+  環境變數（都有預設值，只有要改到 repo 目錄以外的路徑時才需要設）。
+- `deploy/README.md` + `deploy/dc4018-form.service`：內網部署步驟，含 Linux
+  （systemd，自動重啟＋開機啟動）與 Windows（工作排程器／NSSM 裝成服務）兩種做法，
+  以及對應規格書「成功指標」的部署後驗收清單。**這些步驟需要 Web 或該機器管理者親自
+  在內網機器上執行——Claude Code 沒有那台機器的存取權，無法代為部署或設防火牆/VLAN。**
+
+開發計畫的 M1-M4 到這裡全部完成。規格書裡「各里程碑預計完成時間」「負責人」「內網
+機器管理權限確認方式」「同仁使用規模」幾項待確認事項，還是要回到 Web 這邊確認，
+不是 Claude Code 能替你決定的。
 
 ## 本機測試
 
 ```bash
 pip install -r requirements.txt
 python3 -m pytest tests/ -q      # 單元測試
-python3 app.py                   # 啟動開發伺服器，預設 :5000
+python3 app.py                   # 啟動開發伺服器（僅本機測試用），預設 :5000
+python3 wsgi.py                  # 用 waitress 啟動，行為更接近正式部署
 ```
 
 手動測試 docx 產生邏輯（不透過網頁）：

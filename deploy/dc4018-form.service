@@ -1,0 +1,31 @@
+# systemd unit 範例（Linux 內網機器適用）。
+#
+# 使用方式（在該內網機器上，以有 sudo 權限的帳號執行）：
+#   1. 把整個 repo 放到機器上，例如 /opt/dc4018-form-service
+#   2. cd /opt/dc4018-form-service && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+#   3. cp .env.example .env，依需要調整 PORT / ARCHIVE_DIR / DB_PATH
+#   4. 把下面的 WorkingDirectory / ExecStart / EnvironmentFile 路徑改成實際部署路徑
+#   5. sudo cp deploy/dc4018-form.service /etc/systemd/system/
+#      sudo systemctl daemon-reload
+#      sudo systemctl enable --now dc4018-form
+#      sudo systemctl status dc4018-form   # 確認 active (running)
+#
+# 這個檔案本身不會被 Claude Code 部署到任何機器上——上面 5 個步驟需要 Web 或該機器
+# 管理者親自在內網機器上執行（見 repo README「已知邊界」）。
+
+[Unit]
+Description=DC-4018 系統開發維護需求單 多人自助填寫系統
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/dc4018-form-service
+EnvironmentFile=/opt/dc4018-form-service/.env
+ExecStart=/opt/dc4018-form-service/.venv/bin/python /opt/dc4018-form-service/wsgi.py
+Restart=on-failure
+RestartSec=5
+User=dc4018-form
+Group=dc4018-form
+
+[Install]
+WantedBy=multi-user.target

@@ -18,6 +18,7 @@ import form_fill
 app = Flask(__name__)
 
 ARCHIVE_DIR = os.environ.get('ARCHIVE_DIR', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'archive'))
+DB_PATH = os.environ.get('DB_PATH', db.DEFAULT_DB_PATH)
 TAIPEI = ZoneInfo('Asia/Taipei')
 
 REQUIRED_FIELDS = {
@@ -58,7 +59,7 @@ def index():
 
 @app.get('/lookup/<emp_id>')
 def lookup(emp_id):
-    identity = db.get_identity(emp_id)
+    identity = db.get_identity(emp_id, db_path=DB_PATH)
     if identity is None:
         return jsonify({'found': False})
     return jsonify({'found': True, **identity})
@@ -89,7 +90,8 @@ def submit():
             selected_security=security_selected, selected_benefit=benefit_selected,
         ), 400
 
-    db.upsert_identity(values['emp_id'], values['name'], values['dept'], values['phone'], values['email'])
+    db.upsert_identity(values['emp_id'], values['name'], values['dept'], values['phone'], values['email'],
+                        db_path=DB_PATH)
 
     now = datetime.now(TAIPEI)
     day_dir = os.path.join(ARCHIVE_DIR, now.strftime('%Y-%m-%d'))
